@@ -1,2 +1,2 @@
 # ETH frontend
-Frontend interface for ethereum utilities
+Frontend interface for ethereum blockchain utilities.
