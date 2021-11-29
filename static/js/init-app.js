@@ -60,15 +60,67 @@ async function httpRequest(url, method="GET", data={}) {
 httpRequest(cgPriceUrl)
 .then(data => {
     //console.log(data); // JSON data parsed by `data.json()` call
-     document.getElementById("price-results").innerHTML = JSON.stringify(data, null, 4);
+    //document.getElementById("price-results").innerHTML = JSON.stringify(data, null, 4);
+    
+    
+    var keys = Object.keys(data[0]);
+        
+
+    // create the price feed table
+    var [table, thead, tbody] = createTable(
+        headers=keys,
+        classes=['table', 'table-sm', 'table-borderless'],
+        parentdiv='price-feed-div',
+        id='price-feed-table',
+    );
+    table.style.width = "100%";
+    table.style.overflow = "auto";
+    
+    // populate price feed table
+    for (let coin of data) {
+        var row = thead.insertRow()
+        for (let k of keys) {
+            var cell = row.insertCell()
+            cell.innerHTML = coin[k];
+        };
+    };
+
+    // for initializing basic DataTables
+    $(document).ready(function() {
+        $("#price-feed-table").DataTable({});
+    });
+    
 });
 
 
+/*
 httpRequest(openseaAssetsUrl)
 .then(data => {
     //console.log(data); // JSON data parsed by `data.json()` call
     document.getElementById("nft-results").innerHTML = JSON.stringify(data, null, 4);
 });
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+// initialize all hover tooltips in the application
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+
+
 
 
 
