@@ -2,6 +2,11 @@
 
 const ETHERSCAN_API_KEY = "9FBNJFFAW5H9X27RTUNVDTG3KH1X3VQVCI";
 
+const MORALIS_API_KEY = "7ppRwksxCVAKooIVEKCaGMyfY67mvKi9du0QbpRdrLl7kR7UxpFshGZVk820AEsL";
+
+
+
+
 
 
 
@@ -11,10 +16,76 @@ const ETHERSCAN_API_KEY = "9FBNJFFAW5H9X27RTUNVDTG3KH1X3VQVCI";
 // get address information
 document.getElementById("submit-address").onclick = function () {
     document.getElementById("assets-loading").style.display = "block";
-    document.getElementById("assets-content").innerHTML = "";
+
+    for (let c of document.getElementById("assets-content").children) {
+        c.innerHTML = "";
+    }
 
     var myaddress = document.getElementById("address-input").value;
-    var openseaAssetsUrl = "https://api.opensea.io/api/v1/assets?owner=" + myaddress;
+    var openseaAssetsUrl = `https://api.opensea.io/api/v1/assets?owner=${myaddress}`;
+    var moralisAssetsUrl = `https://deep-index.moralis.io/api/v2/${myaddress}/erc20?chain=eth`
+
+
+
+    // get ERC20 tokens using Moralis 
+    httpRequest(
+        moralisAssetsUrl,
+        method="GET",
+        data={},
+        headers={
+            //"accept": "application/json",
+            'Content-Type': 'application/json',
+            'X-API-Key': MORALIS_API_KEY},
+    ).then(data => {
+
+
+        console.log(data);
+        document.getElementById('my-tokens').innerHTML = '<h3>My ERC-20 tokens</h3>';
+        //document.getElementById('my-tokens').innerHTML = JSON.stringify(data);
+        var [table, thead, tbody] = createTable(
+            headers=["", "Symbol", "Name", "Balance"],
+            classes=['table', 'table-sm', 'table-striped'],
+            parentdiv='my-tokens',
+            id='erc20-table',
+        )
+        for (let token of data) {
+
+            var row = tbody.insertRow();
+            for (let header of ['thumbnail', 'symbol', 'name', 'balance']){
+
+                var cell = row.insertCell();
+
+                if (header === "thumbnail") {
+
+                    if (token[header] === null){
+                        continue;
+                    };
+
+                    var img = document.createElement('img');
+                    img.src = token[header];
+                    img.style.height = '30px';
+                    img.style.width = '30px';
+                    img.style.display = "block";
+                    cell.appendChild(img);
+
+                } else if (header === "balance") {
+                    cell.innerHTML = token[header] / 10**token['decimals'];
+                } else {
+                    cell.innerHTML = token[header];
+                };
+
+            };
+
+        };
+
+
+
+        $("#erc20-table").DataTable({
+            "pageLength": 50,
+        });
+
+
+    });
 
 
 
@@ -22,11 +93,9 @@ document.getElementById("submit-address").onclick = function () {
     var ETHERSCAN_GET_ETH_URL = `https://api.etherscan.io/api?module=account&action=balance&address=${myaddress}&tag=latest&apikey=${ETHERSCAN_API_KEY}`;
     httpRequest(ETHERSCAN_GET_ETH_URL)
     .then(data => {
-        console.log(data['result'] / 1e18);
+        var eth = data['result'] / 1e18;
+        document.getElementById("my-ether").innerHTML += `<h3>My Ether</h3><p class="lead">${eth}</p>`;
     });
-
-
-
 
 
 
@@ -43,9 +112,9 @@ document.getElementById("submit-address").onclick = function () {
 
         // get NFT info out of opensea assets
         var nfts = data["assets"];
-         document.getElementById("assets-content").innerHTML += '<h3>NFTs</h3>';
+        document.getElementById("my-nfts").innerHTML += '<h3>My NFTs</h3>';
 
-        var row = createRowCols('assets-content', ncols=nfts.length)
+        var row = createRowCols('my-nfts', ncols=nfts.length)
         row.style.width = "100%";
         row.style.overflow = "auto";
         var nft_i = 0;
@@ -75,21 +144,21 @@ document.getElementById("submit-address").onclick = function () {
             row.children[nft_i].appendChild(cardObj['card']);
             nft_i += 1;
 
-            //document.getElementById("assets-content").appendChild(cardObj['card']);
-
         };
 
 
     });
 
 
-
-
-
+    document.getElementById("assets-content").style.display = "block";
     document.getElementById("assets-loading").style.display = "none";
 
-
 };
+
+
+
+
+
 
 
 
@@ -118,7 +187,7 @@ httpRequest(COINGECKO_PRICE_URL)
     // create the price feed table
     var [table, thead, tbody] = createTable(
         headers=formatLabels(keys, mapping=mapping),
-        classes=['table', 'table-sm', 'table-striped'],
+        classes=['table', 'table', 'table-striped'],
         parentdiv='price-feed-div',
         id='price-feed-table',
     );

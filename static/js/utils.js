@@ -94,10 +94,12 @@ function formatLabels(labels, mapping={}){
 
 // Using fetch method for an HTTP GET request
 // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-async function httpRequest(url, method="GET", data={}) {
+async function httpRequest(url, method="GET", data={}, headers={}) {
     const response = await fetch(url, {
         method: method,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
+        credential: 'include',
+        //headers: {'Content-Type': 'application/json', ...headers},
         //...(method === "POST" && {body: JSON.stringify(data)}),
         //body: JSON.stringify(data), // body data type must match "Content-Type" header
     });
