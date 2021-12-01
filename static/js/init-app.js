@@ -1,14 +1,5 @@
-
-
 const ETHERSCAN_API_KEY = "9FBNJFFAW5H9X27RTUNVDTG3KH1X3VQVCI";
-
 const MORALIS_API_KEY = "7ppRwksxCVAKooIVEKCaGMyfY67mvKi9du0QbpRdrLl7kR7UxpFshGZVk820AEsL";
-
-
-
-
-
-
 
 
 
@@ -38,17 +29,23 @@ document.getElementById("submit-address").onclick = function () {
             'X-API-Key': MORALIS_API_KEY},
     ).then(data => {
 
-
-        console.log(data);
-        document.getElementById('my-tokens').innerHTML = '<h3>My ERC-20 tokens</h3>';
+        document.getElementById('my-tokens').innerHTML = '<h3 class="text-center">My ERC-20 tokens</h3>';
         //document.getElementById('my-tokens').innerHTML = JSON.stringify(data);
         var [table, thead, tbody] = createTable(
             headers=["", "Symbol", "Name", "Balance"],
-            classes=['table', 'table-sm', 'table-striped'],
+            classes=['table', 'table-sm', 'table-striped', 'table-dark'],
             parentdiv='my-tokens',
             id='erc20-table',
         )
         for (let token of data) {
+
+
+            if (token['name'] == null){
+                continue;
+            };
+            if (token['name'] === '' || token['name'].includes('.')){
+                continue;
+            };
 
             var row = tbody.insertRow();
             for (let header of ['thumbnail', 'symbol', 'name', 'balance']){
@@ -73,19 +70,14 @@ document.getElementById("submit-address").onclick = function () {
                 } else {
                     cell.innerHTML = token[header];
                 };
-
             };
-
         };
-
-
 
         $("#erc20-table").DataTable({
             "pageLength": 50,
         });
-
-
     });
+
 
 
 
@@ -94,7 +86,7 @@ document.getElementById("submit-address").onclick = function () {
     httpRequest(ETHERSCAN_GET_ETH_URL)
     .then(data => {
         var eth = data['result'] / 1e18;
-        document.getElementById("my-ether").innerHTML += `<h3>My Ether</h3><p class="lead">${eth}</p>`;
+        document.getElementById("my-ether").innerHTML += `<h3 class="text-center">My Ether</h3><p class="text-center lead">${eth}</p>`;
     });
 
 
@@ -106,13 +98,10 @@ document.getElementById("submit-address").onclick = function () {
     // load the address assets using the opensea API
     httpRequest(openseaAssetsUrl)
     .then(data => {
-        console.log(data);
-        //document.getElementById("assets-content").innerHTML = JSON.stringify(data, null, 4);
-
 
         // get NFT info out of opensea assets
         var nfts = data["assets"];
-        document.getElementById("my-nfts").innerHTML += '<h3>My NFTs</h3>';
+        document.getElementById("my-nfts").innerHTML += '<h3 class="text-center">My NFTs</h3>';
 
         var row = createRowCols('my-nfts', ncols=nfts.length)
         row.style.width = "100%";
@@ -187,7 +176,7 @@ httpRequest(COINGECKO_PRICE_URL)
     // create the price feed table
     var [table, thead, tbody] = createTable(
         headers=formatLabels(keys, mapping=mapping),
-        classes=['table', 'table', 'table-striped'],
+        classes=['table', 'table', 'table-striped', 'table-dark'],
         parentdiv='price-feed-div',
         id='price-feed-table',
     );
@@ -215,10 +204,10 @@ httpRequest(COINGECKO_PRICE_URL)
             } else if (k === "price_change_percentage_24h") {
                 if (coin[k].toString().startsWith("-")) {
                     cell.innerHTML = coin[k];
-                    cell.style.color = 'red';
+                    cell.style.color = 'pink';
                 } else {
                     cell.innerHTML = "+" + coin[k];
-                    cell.style.color = 'green';
+                    cell.style.color = 'lightgreen';
                 };
     
             } else {
@@ -230,7 +219,9 @@ httpRequest(COINGECKO_PRICE_URL)
 
     // for initializing basic DataTables
     $(document).ready(function() {
-        $("#price-feed-table").DataTable({});
+        $("#price-feed-table").DataTable({
+            "pageLength": 50,
+        });
     });
     
     document.getElementById("price-feed-loading").style.display = "none";
