@@ -176,12 +176,12 @@ httpRequest(COINGECKO_PRICE_URL)
     // create the price feed table
     var [table, thead, tbody] = createTable(
         headers=formatLabels(keys, mapping=mapping),
-        classes=['table', 'table', 'table-striped', 'table-dark'],
+        classes=['table', 'table-sm', 'table-striped', 'table-dark'],
         parentdiv='price-feed-div',
         id='price-feed-table',
     );
-    table.style.width = "100%";
-    table.style.overflow = "auto";
+    //table.style.width = "100%";
+    //table.style.overflow = "auto";
     
 
     // populate price feed table
