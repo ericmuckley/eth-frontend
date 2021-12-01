@@ -3,6 +3,10 @@ body {
    background-color: black;
 }
 
+table.dataTable td {
+  font-size: 0.75em;
+}
+
 .content {
     background-color: #adb5bd;
     padding: 5px;

@@ -33,7 +33,7 @@ document.getElementById("submit-address").onclick = function () {
         //document.getElementById('my-tokens').innerHTML = JSON.stringify(data);
         var [table, thead, tbody] = createTable(
             headers=["", "Symbol", "Name", "Balance"],
-            classes=['table', 'table-sm', 'table-striped', 'table-dark'],
+            classes=['table', 'table-sm', 'table-striped', 'table-dark', 'display', 'compact'],
             parentdiv='my-tokens',
             id='erc20-table',
         )
@@ -124,6 +124,12 @@ document.getElementById("submit-address").onclick = function () {
             p.innerHTML = nft['description'] !== null ? nft['description'] : "no description";
             cardObj['body'].appendChild(p);
 
+
+            var p = document.createElement('p');
+            p.innerHTML = `Created by: ${nft['creator']['user']['username']}`;
+            cardObj['body'].appendChild(p);
+
+
             var a = document.createElement('a');
             a.href = nft['permalink'];
             a.target = "_blank";
@@ -176,7 +182,7 @@ httpRequest(COINGECKO_PRICE_URL)
     // create the price feed table
     var [table, thead, tbody] = createTable(
         headers=formatLabels(keys, mapping=mapping),
-        classes=['table', 'table-sm', 'table-striped', 'table-dark'],
+        classes=['table', 'table-sm', 'table-striped', 'table-dark', 'display', 'compact'],
         parentdiv='price-feed-div',
         id='price-feed-table',
     );
