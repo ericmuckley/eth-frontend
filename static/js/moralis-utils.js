@@ -1,87 +1,46 @@
-const serverUrl = "https://xxxxx.grandmoralis.com:2053/server"; //Server url from moralis.io
-const appId = "YOUR_APP_ID"; // Application id from moralis.io
+//const INFURA_URI = "https://mainnet.infura.io/v3/9104b3a76b4b46b29c1cc489338980b8";
+//const web3 = new Web3(new Web3.providers.HttpProvider(INFURA_URI));
+//const myAddress = "0x91a42eCF59abB8350A0A64c8D3f5eb3bD08cc6c2";
+
+
+const serverUrl = "https://mysaxj65vywx.usemoralis.com:2053/server";
+const appId = "iPXKdV96rgPUw4gJAxNnJw5gPRBKeGOwX8vFtQHZ";
 Moralis.start({ serverUrl, appId });
 
-const authButton = document.getElementById('btn-auth');
-const enableButton = document.getElementById('btn-enable');
-const logoutButton = document.getElementById('btn-logout');
-const callButton = document.getElementById('btn-call');
-const subheader = document.getElementById('subheader');
-const resultBox = document.getElementById('result');
 
-let user;
-let web3;
-let result = '';
+document.getElementById("btn-login").onclick = login;
+document.getElementById("btn-logout").onclick = logOut;
+document.getElementById("btn-get-stats").onclick = getStats;
 
-const provider = 'walletconnect';
 
-function renderApp() {
-  user = Moralis.User.current();
 
+// Logging in and out
+async function login() {
+  let user = Moralis.User.current();
+  if (!user) {
+    user = await Moralis.authenticate();
+  };
+  console.log("logged in user:", user);
+  getStats();
+};
+async function logOut() {
+  await Moralis.User.logOut();
+  console.log("logged out");
+}
+
+function getStats() {
+  const user = Moralis.User.current();
   if (user) {
-    authButton.style.display = 'none';
-    logoutButton.style.display = 'inline-block';
-    subheader.innerText = `Welcome ${user.get('username')}`;
-
-    if (web3) {
-      callButton.style.display = 'inline-block';
-      enableButton.style.display = 'none';
-    } else {
-      callButton.style.display = 'none';
-      enableButton.style.display = 'inline-block';
-    }
-  } else {
-    authButton.style.display = 'inline-block';
-    callButton.style.display = 'none';
-    logoutButton.style.display = 'none';
-    subheader.innerText = '';
-    enableButton.style.display = 'none';
+    getUserTransactions(user);
   }
-
-  resultBox.innerText = result;
+}
+async function getUserTransactions(user) {
+  // create query
+  const query = new Moralis.Query("EthTransactions");
+  query.equalTo("from_address", user.get("ethAddress"));
+  // run query
+  const results = await query.find();
+  console.log("user transactions:", results);
 }
 
-async function authenticate() {
-  try {
-    user = await Moralis.authenticate({ provider });
-    web3 = await Moralis.enableWeb3({ provider });
-  } catch (error) {
-    console.log('authenticate failed', error);
-  }
-  renderApp();
-}
-
-async function logout() {
-  try {
-    await Moralis.User.logOut();
-  } catch (error) {
-    console.log('logOut failed', error);
-  }
-  result = '';
-  renderApp();
-}
-
-async function testCall() {
-  try {
-    result = await web3.eth.personal.sign('Hello world', user.get('ethAddress'));
-  } catch (error) {
-    console.log('testCall failed', error);
-  }
-  renderApp();
-}
-
-async function enableWeb3() {
-  try {
-    web3 = await Moralis.enableWeb3({ provider });
-  } catch (error) {
-    console.log('testCall failed', error);
-  }
-  renderApp();
-}
-
-authButton.onclick = authenticate;
-logoutButton.onclick = logout;
-callButton.onclick = testCall;
-enableButton.onclick = enableWeb3;
-
-renderApp();
+getStats();
